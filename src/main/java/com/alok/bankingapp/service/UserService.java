@@ -6,6 +6,7 @@ import com.alok.bankingapp.entity.User;
 import com.alok.bankingapp.exception.UserNotFoundException;
 import com.alok.bankingapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,5 +50,14 @@ public class UserService {
 
     private UserResponse mapToResponse(User user) {
         return new UserResponse(user.getId(), user.getName(), user.getEmail());
+    }
+
+    @Transactional
+    public void  createUserAndFail(UserRequest request){
+        User user=new User(request.getName(), request.getEmail());
+        repository.save(user);
+        if(true){
+            throw new RuntimeException("Intentional failure");
+        }
     }
 }
