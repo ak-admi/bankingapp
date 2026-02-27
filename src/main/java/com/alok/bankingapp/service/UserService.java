@@ -56,8 +56,6 @@ public class UserService {
     public void  createUserAndFail(UserRequest request){
         User user=new User(request.getName(), request.getEmail());
         repository.save(user);
-        if(true){
-            throw new RuntimeException("Intentional failure");
-        }
+        throw new RuntimeException("Intentional failure");
     }
 }
