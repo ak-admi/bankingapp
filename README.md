@@ -1,6 +1,6 @@
 # bankingapp
 
-A structured learning project for transitioning from QA Automation Engineering into Java Backend Engineering. Built with Java 17 and Spring Boot 3.x, this repository documents hands-on practice with core backend concepts through incremental, well-organized development.
+A structured learning project for transitioning from QA Automation Engineering into Java Backend Engineering. Built with Java 17 and Spring Boot 3.x, this repository documents hands-on practice with core backend concepts through incremental, well-organized development....
 
 ---
 
