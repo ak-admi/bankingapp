@@ -48,4 +48,9 @@ public class UserController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/fail")
+    public void createUserAndFail(@RequestBody UserRequest request){
+        service.createUserAndFail(request);
+    }
 }

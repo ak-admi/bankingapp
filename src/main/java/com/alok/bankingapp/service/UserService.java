@@ -54,8 +54,8 @@ public class UserService {
 
     @Transactional
     public void  createUserAndFail(UserRequest request){
-        User user=new User(request.getName(), request.getEmail());
-        repository.save(user);
-        throw new RuntimeException("Intentional failure");
+        repository.save(new User("User1", "u1@test.com"));
+        repository.save(new User("User2", "u2@test.com"));
+        throw new RuntimeException("Boom");
     }
 }
