@@ -49,7 +49,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/fail")
+    @PostMapping("/users/fail")
     public void createUserAndFail(@RequestBody UserRequest request){
         service.createUserAndFail(request);
     }
