@@ -14,6 +14,17 @@ public class TransactionDemoService {
         this.repository=repository;
     }
 
+    public void outerMethod(UserRequest request){
+        innerTransactionalMethod(request);
+    }
+
+    @Transactional
+    public void innerTransactionalMethod(UserRequest request){
+        User user = new User(request.getName(), request.getEmail());
+        repository.save(user);
+        throw new RuntimeException("Failure Inside trasnaction");
+    }
+
     @Transactional
     public void createUserAndFail(UserRequest request){
         User user = new User(request.getName(), request.getEmail());

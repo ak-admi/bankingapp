@@ -2,6 +2,7 @@ package com.alok.bankingapp.controller;
 
 import com.alok.bankingapp.dto.UserRequest;
 import com.alok.bankingapp.dto.UserResponse;
+import com.alok.bankingapp.service.TransactionDemoService;
 import com.alok.bankingapp.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,11 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService service;
+    private final TransactionDemoService transService;
 
-    public UserController(UserService service){
+    public UserController(UserService service,TransactionDemoService transService){
         this.service= service;
+        this.transService=transService;
     }
 
     @PostMapping
@@ -49,8 +52,13 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/users/fail")
+    @PostMapping("/fail")
     public void createUserAndFail(@RequestBody UserRequest request){
-        service.createUserAndFail(request);
+        transService.createUserAndFail(request);
+    }
+
+    @PostMapping("/self")
+    public void selfInvocation(@RequestBody UserRequest request){
+        transService.outerMethod(request);
     }
 }
