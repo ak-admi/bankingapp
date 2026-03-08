@@ -7,20 +7,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryService {
-private final InventoryRepository repository;
-public InventoryService(InventoryRepository repository){
-    this.repository = repository;
-}
+    private final InventoryRepository repository;
 
-@Transactional
-    public void buy(Long id){
-    Inventory inventory =repository.findById(id)
-            .orElseThrow();
-
-    int stock = inventory.getStock();
-    if(stock<=0){
-        throw new RuntimeException("Out of Stock");
+    public InventoryService(InventoryRepository repository) {
+        this.repository = repository;
     }
-    inventory.setStock(stock-1);
-}
+
+    @Transactional
+    public void buy(Long id) {
+//    Inventory inventory =repository.findById(id)
+//            .orElseThrow();
+//
+//    int stock = inventory.getStock();
+//    if(stock<=0){
+//        throw new RuntimeException("Out of Stock");
+//    }
+//    inventory.setStock(stock-1);
+        int updatedRows = repository.decreaseStock(id);
+        if (updatedRows == 0) {
+            throw new RuntimeException("Out of Stock");
+        }
+    }
 }
