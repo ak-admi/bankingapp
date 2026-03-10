@@ -1,10 +1,8 @@
 package com.alok.bankingapp.controller;
 
 import com.alok.bankingapp.service.InventoryService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/inventory")
@@ -18,6 +16,12 @@ public class InventoryController {
     @PostMapping("/{id}/buy")
     public void buy(@PathVariable Long id){
         service.buy(id);
+    }
+
+    @PostMapping("/{id}/decrement")
+    public ResponseEntity<String> purchase(@PathVariable Long id, @RequestParam int quantity) {
+        service.pruchaseItem(id, quantity);
+        return ResponseEntity.ok("Purchase Successful");
     }
 
 }
