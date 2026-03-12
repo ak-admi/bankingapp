@@ -1,169 +1,182 @@
-# bankingapp
+# Banking App — Spring Boot Learning Project
 
-A structured learning project for transitioning from QA Automation Engineering into Java Backend Engineering. Built with Java 17 and Spring Boot 3.x, this repository documents hands-on practice with core backend concepts through incremental, well-organized development.
-
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [How to Run](#how-to-run)
-- [Available Endpoints](#available-endpoints)
-- [Concepts Practiced](#concepts-practiced)
-- [Planned Enhancements](#planned-enhancements)
-- [Learning Objectives](#learning-objectives)
-- [Author](#author)
-
----
-
-## Project Overview
-
-This project serves as a progressive backend sandbox — starting from the fundamentals of Spring Boot and building toward production-relevant patterns. Each iteration introduces a new concept, making the commit history itself a learning artifact.
-
-The project currently exposes a basic REST API with a layered architecture and will expand to cover persistence, security, testing, and more.
-
----
-
-## Architecture
-
-The project follows a standard **Layered Architecture** pattern:
-
-```
-Client Request
-      │
-      ▼
-┌─────────────┐
-│  Controller │  ← Handles HTTP requests, delegates to service
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   Service   │  ← Contains business logic
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│     DTO     │  ← Shapes data returned to the client
-└─────────────┘
-```
-
-**Layer Responsibilities:**
-
-- **Controller** — Receives HTTP requests, validates input, and returns HTTP responses. No business logic lives here.
-- **Service** — Encapsulates all business logic. Keeps controllers thin and testable.
-- **DTO (Data Transfer Object)** — Decouples internal domain models from the API response contract, giving control over what is exposed.
+A personal sandbox project built with **Spring Boot 3.5** to explore and experiment with advanced backend concepts including transactional behaviour, optimistic concurrency control, self-invocation proxy issues, and atomic SQL updates.
 
 ---
 
 ## Tech Stack
 
-| Technology      | Version | Purpose                          |
-|-----------------|---------|----------------------------------|
-| Java            | 17      | Core language (LTS release)      |
-| Spring Boot     | 3.x     | Application framework            |
-| Spring Web MVC  | —       | REST API support                 |
-| Maven           | 3.x     | Build and dependency management  |
-| Jackson         | —       | JSON serialization               |
+| Layer | Technology |
+|---|---|
+| Language | Java 17 |
+| Framework | Spring Boot 3.5.x |
+| Persistence | Spring Data JPA / Hibernate |
+| Database | H2 (file-based, persistent) |
+| Build Tool | Maven |
+| Utilities | Lombok |
 
 ---
 
-## How to Run
+## Project Structure
 
-### Prerequisites
-
-- Java 17+ installed
-- Maven 3.x installed
-
-### Steps
-
-**1. Clone the repository**
-
-```bash
-git clone https://github.com/ak-admi/bankingapp.git
-cd bankingapp
 ```
-
-**2. Build the project**
-
-```bash
-mvn clean install
+src/main/java/com/alok/bankingapp/
+├── BankingappApplication.java          # Spring Boot entry point
+├── controller/
+│   ├── HelloController.java
+│   ├── UserController.java             # User CRUD + transaction demo endpoints
+│   └── InventoryController.java        # Inventory buy / decrement endpoints
+├── service/
+│   ├── UserService.java                # Core user business logic
+│   ├── TransactionDemoService.java     # @Transactional rollback & self-invocation demos
+│   ├── InventoryService.java           # Optimistic locking + retry logic
+│   └── HelloService.java
+├── entity/
+│   ├── User.java                       # JPA entity with NOT NULL / UNIQUE constraints
+│   └── Inventory.java                  # JPA entity with @Version for optimistic locking
+├── repository/
+│   ├── UserRepository.java
+│   └── InventoryRepository.java        # Custom atomic decreaseStock query
+├── dto/
+│   ├── UserRequest.java
+│   ├── UserResponse.java
+│   └── ErrorResponse.java
+└── exception/
+    ├── GlobalExceptionHandler.java     # @RestControllerAdvice centralised error handling
+    ├── UserNotFoundException.java
+    ├── InventoryNotFoundException.java
+    ├── InsufficientStockException.java
+    └── ConcurrencyException.java
 ```
-
-**3. Run the application**
-
-```bash
-mvn spring-boot:run
-```
-
-The application will start on `http://localhost:8080` by default.
 
 ---
 
-## Available Endpoints
+## Key Concepts Explored
 
-### Base URL: `http://localhost:8080`
+### 1. `@Transactional` Rollback
+The `POST /users/fail` endpoint demonstrates that when a `RuntimeException` is thrown inside a `@Transactional` method after a save, the entire transaction is rolled back — the user is **not** persisted to the database.
 
-| Method | Endpoint  | Description              | Response          |
-|--------|-----------|--------------------------|-------------------|
-| GET    | `/hello`  | Returns a greeting message | `200 OK` — JSON  |
+### 2. Spring Proxy & Self-Invocation Problem
+The `POST /users/self` endpoint demonstrates a classic Spring AOP trap: when an outer method calls an inner `@Transactional` method **on the same class** without going through the Spring proxy, the transaction annotation is silently ignored. The `InventoryService` resolves this by injecting itself with `@Lazy` so that internal calls go through the proxy correctly.
 
-### Sample Response — `GET /hello`
+### 3. Optimistic Concurrency Control (`@Version`)
+The `Inventory` entity uses a `@Version` field managed by Hibernate. On concurrent updates, Hibernate throws `ObjectOptimisticLockingFailureException` instead of overwriting data silently.
 
+### 4. Retry Logic with Backoff
+`InventoryService.pruchaseItem()` wraps the internal transactional purchase in a retry loop (up to 3 attempts with a 50 ms backoff) to gracefully handle concurrent update conflicts before returning a `503 SERVICE_UNAVAILABLE` to the caller.
+
+### 5. Atomic SQL Update
+`POST /inventory/{id}/buy` uses a custom JPQL query (`repository.decreaseStock(id)`) that performs a single atomic `UPDATE ... WHERE stock > 0` to avoid race conditions without relying on application-level locking.
+
+### 6. Global Exception Handling
+`GlobalExceptionHandler` uses `@RestControllerAdvice` to map domain exceptions to HTTP status codes consistently across all controllers.
+
+---
+
+## API Reference
+
+### User Endpoints — `/users`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/users` | Create a new user |
+| `GET` | `/users` | Get all users |
+| `GET` | `/users/{id}` | Get user by ID |
+| `PUT` | `/users/{id}` | Update a user |
+| `DELETE` | `/users/{id}` | Delete a user |
+| `POST` | `/users/fail` | Demo: `@Transactional` rollback on exception |
+| `POST` | `/users/self` | Demo: self-invocation proxy bypass (no rollback) |
+
+#### Sample Request Body (create / update)
 ```json
 {
-  "message": "Hello, World!",
-  "status": "success"
+  "name": "Alok",
+  "email": "alok@example.com"
 }
 ```
 
----
+### Inventory Endpoints — `/inventory`
 
-## Concepts Practiced
-
-- [x] Spring Boot project structure and auto-configuration
-- [x] REST Controller creation with `@RestController` and `@GetMapping`
-- [x] Layered architecture separation (Controller → Service → DTO)
-- [x] JSON response shaping using DTOs
-- [x] Spring MVC request-response lifecycle
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/inventory/{id}/buy` | Atomic stock decrement (SQL-level) |
+| `POST` | `/inventory/{id}/decrement?quantity=N` | Decrement by quantity with optimistic lock + retry |
 
 ---
 
-## Planned Enhancements
+## Running the Application
 
-The following topics are queued for upcoming iterations:
+### Prerequisites
+- Java 17+
+- Maven 3.6+
 
-- [ ] Integrate Spring Data JPA with an H2 in-memory database
-- [ ] Add full CRUD endpoints for a banking domain entity (e.g. Account, Transaction)
-- [ ] Implement global exception handling with `@ControllerAdvice`
-- [ ] Add input validation using Bean Validation (`@Valid`, `@NotBlank`, etc.)
-- [ ] Write unit tests with JUnit 5 and Mockito
-- [ ] Write integration tests using `@SpringBootTest`
-- [ ] Introduce Spring Security for basic authentication
-- [ ] Add API documentation with SpringDoc OpenAPI (Swagger UI)
-- [ ] Dockerize the application
+### Steps
+
+```bash
+# Clone the repository
+git clone https://github.com/ak-admi/bankingapp.git
+cd bankingapp
+
+# Build the project
+./mvnw clean install
+
+# Run the application
+./mvnw spring-boot:run
+```
+
+The application starts on **`http://localhost:8080`** by default.
 
 ---
 
-## Learning Objectives
+## H2 Console
 
-This project is intentionally scoped to reinforce the following goals:
+Since this project uses an H2 file-based database, you can inspect the data at runtime via the browser console:
 
-1. **Build backend intuition from a QA foundation** — applying test thinking to code structure and API design.
-2. **Understand the Spring ecosystem** — not just how to use it, but why its patterns exist.
-3. **Write production-relevant code** — avoiding "tutorial code" by focusing on separation of concerns from day one.
-4. **Document the learning process** — treating this repository as a portfolio artifact that demonstrates growth over time.
+```
+URL:      http://localhost:8080/h2-console
+JDBC URL: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
+Username: sa
+Password: (leave blank)
+```
+
+---
+
+## Database Configuration
+
+Configured in `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.h2.console.enabled=true
+```
+
+Schema is auto-managed by Hibernate on startup (`ddl-auto=update`), and SQL queries are printed to the console for easy debugging.
+
+---
+
+## Error Responses
+
+All errors follow a consistent JSON structure:
+
+```json
+{
+  "code": "INSUFFICIENT_STOCK",
+  "message": "Requested 5 but only 2 available"
+}
+```
+
+| Exception | HTTP Status |
+|---|---|
+| `UserNotFoundException` | `404 Not Found` |
+| `InventoryNotFoundException` | `404 Not Found` |
+| `InsufficientStockException` | `409 Conflict` |
+| `ConcurrencyException` | `503 Service Unavailable` |
+| `StaleObjectStateException` | `409 Conflict` |
 
 ---
 
 ## Author
 
-**ak-admi**
-QA Automation Engineer → Java Backend Engineer
-
-- GitHub: [@ak-admi](https://github.com/ak-admi)
-
----
-
-*This project is part of a structured backend engineering study plan. Contributions and feedback are welcome.*
+**Alok** — Automation QA Engineer exploring Spring Boot internals through hands-on experimentation.
