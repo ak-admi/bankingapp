@@ -42,4 +42,8 @@ public class Inventory {
         }
         this.stock -= quantity;
     }
+
+    public Long getVersion() {
+        return version;
+    }
 }
