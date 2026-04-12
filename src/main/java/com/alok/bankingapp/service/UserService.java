@@ -40,6 +40,7 @@ public class UserService {
     public UserResponse update(Long id, UserRequest request) {
         User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         user.updateName(request.getName());
+        user.setEmail(request.getEmail());
         return mapToResponse(repository.save(user));
     }
 

@@ -1,4 +1,4 @@
-package com.alok.bankingapp.dto;
+package com.alok.bankingapp.exception;
 
 import java.util.Map;
 
