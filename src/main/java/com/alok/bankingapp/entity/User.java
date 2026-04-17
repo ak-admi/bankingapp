@@ -3,6 +3,9 @@ package com.alok.bankingapp.entity;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -34,4 +37,7 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Orders> orders = new ArrayList<>();
 }
