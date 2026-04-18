@@ -26,4 +26,16 @@ public class Orders {
     public int getQuantity() {
         return quantity;
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

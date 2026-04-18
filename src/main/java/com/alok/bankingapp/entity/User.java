@@ -40,4 +40,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Orders> orders = new ArrayList<>();
+
+    public List<Orders> getOrders() {
+        return orders;
+    }
 }
