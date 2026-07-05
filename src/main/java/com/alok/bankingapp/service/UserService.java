@@ -1,7 +1,7 @@
 package com.alok.bankingapp.service;
 
 import com.alok.bankingapp.dto.UserRequest;
-import com.alok.bankingapp.dto.UserResponse;
+import com.alok.bankingapp.dto.responses.UserResponse;
 import com.alok.bankingapp.entity.User;
 import com.alok.bankingapp.exception.UserNotFoundException;
 import com.alok.bankingapp.repository.UserRepository;

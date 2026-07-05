@@ -1,6 +1,6 @@
 package com.alok.bankingapp.service;
 
-import com.alok.bankingapp.dto.HelloResponse;
+import com.alok.bankingapp.dto.responses.HelloResponse;
 import org.springframework.stereotype.Service;
 
 @Service

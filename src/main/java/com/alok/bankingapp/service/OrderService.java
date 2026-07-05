@@ -6,9 +6,11 @@ import com.alok.bankingapp.entity.User;
 import com.alok.bankingapp.repository.InventoryRepository;
 import com.alok.bankingapp.repository.OrderRepository;
 import com.alok.bankingapp.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;

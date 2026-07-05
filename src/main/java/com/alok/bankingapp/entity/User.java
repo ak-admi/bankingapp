@@ -1,5 +1,6 @@
 package com.alok.bankingapp.entity;
 
+import jakarta.annotation.Resource;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import jakarta.persistence.*;
 
@@ -43,5 +44,17 @@ public class User {
 
     public List<Orders> getOrders() {
         return orders;
+    }
+
+    public String getUsername() {
+        return getName();
+    }
+
+    public String getPassword() {
+        return "";
+    }
+
+    public Resource getRole() {
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package com.alok.bankingapp.dto;
+package com.alok.bankingapp.dto.responses;
 
 public class HelloResponse {
     private String message;

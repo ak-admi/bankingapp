@@ -1,6 +1,6 @@
 package com.alok.bankingapp.exception;
 
-import com.alok.bankingapp.dto.ErrorResponse;
+import com.alok.bankingapp.dto.responses.ErrorResponse;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

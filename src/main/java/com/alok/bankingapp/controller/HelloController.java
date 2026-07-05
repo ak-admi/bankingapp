@@ -1,6 +1,6 @@
 package com.alok.bankingapp.controller;
 
-import com.alok.bankingapp.dto.HelloResponse;
+import com.alok.bankingapp.dto.responses.HelloResponse;
 import com.alok.bankingapp.service.HelloService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
