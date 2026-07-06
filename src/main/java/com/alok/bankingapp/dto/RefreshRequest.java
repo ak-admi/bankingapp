@@ -1,4 +1,8 @@
 package com.alok.bankingapp.dto;
 
-public class RefreshRequest {
+import jakarta.validation.constraints.NotBlank;
+
+public record RefreshRequest(
+        @NotBlank(message = "Refresh token required") String refreshToken
+) {
 }

@@ -3,13 +3,17 @@ package com.alok.bankingapp.entity;
 import jakarta.annotation.Resource;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +21,15 @@ public class User {
 
     @Column(nullable = false)  // NOT NULL constraint at DB level
     private String name;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role; // e.g., USER, ADMIN
 
     @Column(nullable = false, unique = true)  // NOT NULL + UNIQUE constraint
     private String email;
@@ -47,14 +60,39 @@ public class User {
     }
 
     public String getUsername() {
-        return getName();
+        return this.username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     public String getPassword() {
-        return "";
+        return this.password;
     }
 
-    public Resource getRole() {
-        return null;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public Role getRole() {
+        return this.role;
     }
 }
