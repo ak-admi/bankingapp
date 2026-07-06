@@ -1,6 +1,7 @@
 package com.alok.bankingapp.config;
 
 import com.alok.bankingapp.security.CustomUserDetailsService;
+import com.alok.bankingapp.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
