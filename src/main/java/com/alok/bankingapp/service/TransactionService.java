@@ -37,4 +37,8 @@ public class TransactionService {
     private TransactionResponse toResponse(Transactions t) {
         return new TransactionResponse(t.getId(), t.getAmount(), t.getType(), t.getTransactionDate());
     }
+
+    public Object getById(long l) {
+        return 1l;
+    }
 }
