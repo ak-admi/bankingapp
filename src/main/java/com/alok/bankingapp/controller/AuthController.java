@@ -2,7 +2,11 @@ package com.alok.bankingapp.controller;
 
 import com.alok.bankingapp.dto.LoginRequest;
 import com.alok.bankingapp.dto.RefreshRequest;
+import com.alok.bankingapp.dto.RegisterRequest;
 import com.alok.bankingapp.dto.responses.AuthResponse;
+import com.alok.bankingapp.entity.Role;
+import com.alok.bankingapp.entity.User;
+import com.alok.bankingapp.repository.UserRepository;
 import com.alok.bankingapp.security.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,13 +27,19 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;       // new
+    private final PasswordEncoder passwordEncoder;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
-                          UserDetailsService userDetailsService) {
+                          UserDetailsService userDetailsService,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -60,5 +71,17 @@ public class AuthController {
         // With a store, you'd issue a NEW refresh token and invalidate the old one (rotation).
 
         return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) {
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));// <- this is the part that matters
+        user.setEmail(request.email());
+        user.setName(request.name());
+        user.setRole(Role.USER);
+        userRepository.save(user);
+        return ResponseEntity.ok("User registered");
     }
 }

@@ -1,6 +1,8 @@
 package com.alok.bankingapp.entity;
 
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Setter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,16 +27,20 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Setter
     @Column(nullable = false)
     private String password;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private Role role; // e.g., USER, ADMIN
 
-    @Column(nullable = false, unique = true)  // NOT NULL + UNIQUE constraint
+    @Setter
+    @Column(nullable = true, unique = true)  // NOT NULL + UNIQUE constraint
     private String email;
 
-    protected User() {}
+    public User() {
+    }
     public User(String name, String email){
         this.name=name;
         this.email =email;
@@ -46,10 +52,6 @@ public class User implements UserDetails {
 
     public void updateName(String name){
         this.name=name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -94,5 +96,13 @@ public class User implements UserDetails {
 
     public Role getRole() {
         return this.role;
+    }
+
+    public void setUsername(@NotBlank(message = "Username is required") String username) {
+        this.username = username;
+    }
+
+    public void setName(@NotBlank String name) {
+        this.name = name;
     }
 }

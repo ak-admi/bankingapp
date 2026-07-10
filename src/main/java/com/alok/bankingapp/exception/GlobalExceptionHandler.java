@@ -2,6 +2,7 @@ package com.alok.bankingapp.exception;
 
 import com.alok.bankingapp.dto.responses.ErrorResponse;
 import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -61,5 +62,14 @@ public class GlobalExceptionHandler {
                 errors
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        ErrorResponse error = new ErrorResponse(
+                "Data_Intergrity_Voilation",
+                "The Request violates a data base constraint, check required field and uniqueness rules"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
